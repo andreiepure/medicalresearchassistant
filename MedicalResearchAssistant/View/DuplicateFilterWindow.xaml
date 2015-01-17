@@ -1,0 +1,18 @@
+﻿<Window x:Class="MedicalResearchAssistant.DuplicateFilterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:view="clr-namespace:MedicalResearchAssistant.View"
+        xmlns:viewmodel="clr-namespace:MedicalResearchAssistant.ViewModel"
+        Title="Duplicate Filter" Height="350" Width="500">
+    <Grid>
+        <Grid HorizontalAlignment="Left" Height="299" Margin="37,10,0,0" VerticalAlignment="Top" Width="445">
+            <view:MedlineFileListControl/>
+            <StackPanel HorizontalAlignment="Left" Height="240" Margin="150,27,0,0" VerticalAlignment="Top" Width="250">
+                <view:ChooseFolderControl Width="200" Loaded="ChooseFolderControl_Loaded"/>
+                <view:ChooseFolderControl Width="200" Loaded="ChooseFolderControl_Loaded"/>
+                <view:EnterNumberControl Width="200" Loaded="ChooseFolderControl_Loaded"/>
+                <Button Content="Filter duplicates!" Margin="0,20,0,0" Height="40"></Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
