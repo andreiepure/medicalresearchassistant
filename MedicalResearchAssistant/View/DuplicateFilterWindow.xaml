@@ -3,15 +3,84 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:view="clr-namespace:MedicalResearchAssistant.View"
         xmlns:viewmodel="clr-namespace:MedicalResearchAssistant.ViewModel"
-        Title="Duplicate Filter" Height="350" Width="500">
+        Title="Duplicate Filter" Height="400" Width="800">
+    <!-- Binding to ViewModel data context -->
+    <Window.DataContext>
+        <viewmodel:DuplicateFilterWindowViewModel/>
+    </Window.DataContext>
     <Grid>
-        <Grid HorizontalAlignment="Left" Height="299" Margin="37,10,0,0" VerticalAlignment="Top" Width="445">
-            <view:MedlineFileListControl/>
-            <StackPanel HorizontalAlignment="Left" Height="240" Margin="150,27,0,0" VerticalAlignment="Top" Width="250">
-                <view:ChooseFolderControl Width="200" Loaded="ChooseFolderControl_Loaded"/>
-                <view:ChooseFolderControl Width="200" Loaded="ChooseFolderControl_Loaded"/>
-                <view:EnterNumberControl Width="200" Loaded="ChooseFolderControl_Loaded"/>
-                <Button Content="Filter duplicates!" Margin="0,20,0,0" Height="40"></Button>
+        <Grid HorizontalAlignment="Left" Height="400" Margin="37,10,0,0" VerticalAlignment="Top" Width="800">
+            <StackPanel HorizontalAlignment="Left" Height="290" VerticalAlignment="Top" Width="400">
+                <Label Content="Add NBIB or TXT files with Medline citations"/>
+                <Button Content="Add a file"
+                        Command="{Binding AddFileToListCommand}"/>
+                <ListView HorizontalAlignment="Left"
+                         Height="220"
+                         Margin="0,20,0,0"
+                         VerticalAlignment="Top"
+                         Width="400"
+                         ItemsSource="{Binding SelectedFiles}">
+                    <ListView.View>
+                        <GridView x:Name="FileEntry">
+                            <GridViewColumn Header="Folder" DisplayMemberBinding="{Binding Folder}"  Width="200"/>
+                            <GridViewColumn Header="File" DisplayMemberBinding="{Binding Name}"  Width="125" />
+                            <GridViewColumn Header="Citations#" DisplayMemberBinding="{Binding NumberOfCitations}"  Width="75" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Left" Height="300" Margin="450,27,0,0" VerticalAlignment="Top" Width="300">
+                <!-- 
+                    <view:ChooseFolderControl Width="200" Loaded="ChooseFolderControl_Loaded"/>
+                    <view:ChooseFolderControl Width="200" Loaded="ChooseFolderControl_Loaded"/>
+                    <view:EnterNumberControl Width="200" Loaded="ChooseFolderControl_Loaded"/>
+                 -->
+                <Label>The output will be stored in one file or split in multiple</Label>
+                <Label>files, each containing X citations. E.g. for 10 resulting</Label>
+                <Label>citations, if X = 3 and OutName = out, there will be</Label>
+                <Label>4 files, out1.nbib, out2.nbib, out3.nbib, out4.nbib</Label>
+                <Grid Height="60" VerticalAlignment="Bottom" Width="250">
+                    <Label Content="Select output folder" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <Button Content="Browse"
+                            HorizontalAlignment="Left"
+                            Margin="0,30,0,0"
+                            VerticalAlignment="Top"
+                            Width="50"
+                            Height="30"
+                            Command="{Binding ChooseOutputFolderCommand}"/>
+                    <TextBox HorizontalAlignment="Left"
+                             Height="30"
+                             Margin="50,30,0,0"
+                             TextWrapping="Wrap"
+                             IsReadOnly="True"
+                             Text="{Binding ChosenFolder}"
+                             VerticalAlignment="Top"
+                             Width="200"/>
+                </Grid>
+                <Grid Height="30" VerticalAlignment="Bottom" Width="250">
+                    <Label Content="X = " HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="80" Height="30"/>
+                    <TextBox HorizontalAlignment="Left"
+                             Height="30"
+                             Margin="80,0,0,0"
+                             TextWrapping="Wrap"
+                             Text="{Binding CitationsPerFile}"
+                             VerticalAlignment="Top"
+                             Width="200"/>
+                </Grid>
+                <Grid Height="30" VerticalAlignment="Bottom" Width="250">
+                    <Label Content="OutName = " HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="80" Height="30"/>
+                    <TextBox HorizontalAlignment="Left"
+                             Height="30"
+                             Margin="80,0,0,0"
+                             TextWrapping="Wrap"
+                             Text="{Binding OutName}"
+                             VerticalAlignment="Top"
+                             Width="200"/>
+                </Grid>
+                <Button Content="Filter duplicates!"
+                        Margin="0,20,0,0" 
+                        Height="40"
+                        Command="{Binding FilterDuplicatesCommand}"/>
             </StackPanel>
         </Grid>
     </Grid>

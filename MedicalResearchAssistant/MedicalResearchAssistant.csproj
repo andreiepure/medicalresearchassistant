@@ -36,6 +36,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -53,7 +54,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DataAccess\CitationRepository.cs" />
+    <Compile Include="RelayCommand.cs" />
     <Compile Include="ViewModel\DuplicateFilterWindowViewModel.cs" />
+    <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="View\EnterNumberControl.xaml.cs">
       <DependentUpon>EnterNumberControl.xaml</DependentUpon>
     </Compile>
@@ -76,7 +80,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewModel\ArticleViewModel.cs" />
+    <Compile Include="ViewModel\CitationViewModel.cs" />
     <Compile Include="ViewModel\MedlineFileViewModel.cs" />
     <Compile Include="View\ArticleSetControl.xaml.cs">
       <DependentUpon>ArticleSetControl.xaml</DependentUpon>
@@ -98,7 +102,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\Article.cs" />
+    <Compile Include="Model\Citation.cs" />
     <Compile Include="Model\MedlineFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -126,7 +130,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

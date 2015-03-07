@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MedicalResearchAssistant.ViewModel
+namespace MedicalResearchAssistant.FileParser
 {
-    class ArticleViewModel
+    class Program
     {
+        static void Main(string[] args)
+        {
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MedicalResearchAssistant.DataAccess;
 
 namespace MedicalResearchAssistant.Model
 {
@@ -12,7 +13,7 @@ namespace MedicalResearchAssistant.Model
     class MedlineFile
     {
         /// <summary>
-        /// Name of the files
+        /// Name of the file
         /// </summary>
         public string Name { get; private set; }
 
@@ -20,25 +21,22 @@ namespace MedicalResearchAssistant.Model
         /// <summary>
         /// Number of articles in file
         /// </summary>
-        public int NumberOfArticles
-        {
-            get
-            {
-                return m_articles.Count;
-            }
-        }
+        public int NumberOfCitations { get; private set; }
 
 
-        /// <summary>
-        /// List of articles
-        /// </summary>
-        private readonly List<Article> m_articles = new List<Article>();
-        public IEnumerable<Article> Articles
+        public IEnumerable<Citation> Citations { get; private set; }
+
+
+        public MedlineFile(CitationRepository repo)
         {
-            get
+            if (repo == null)
             {
-                return new List<Article>(m_articles);
+                throw new ArgumentNullException("repo");
             }
+
+            Name = "default";
+            Citations = repo.Citations;
+            NumberOfCitations = Citations.Count();
         }
 
 
@@ -47,19 +45,21 @@ namespace MedicalResearchAssistant.Model
         /// </summary>
         /// <param name="name"></param>
         /// <param name="articles"></param>
-        public MedlineFile(string name, IEnumerable<Article> articles)
+        public MedlineFile(string name, IEnumerable<Citation> articles)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("Name is null or whitespace");
             }
+
             if (articles == null || articles.Any(article => article == null))
             {
                 throw new ArgumentException("Article list is null or contains null");
             }
 
             Name = name;
-            m_articles.AddRange(articles);
+            Citations = articles;
+            NumberOfCitations = articles.Count();
         }
     }
 }
