@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MedicalResearchAssistant.DataAccess;
 
-namespace MedicalResearchAssistant.Model
+namespace MedicalResearchAssistant.FileParser.Medline
 {
     /// <summary>
     /// Model for a Medline file (the NBIB format)
     /// </summary>
-    class MedlineFile
+    public class MedlineFile
     {
         /// <summary>
         /// Name of the file
@@ -26,18 +25,6 @@ namespace MedicalResearchAssistant.Model
 
         public IEnumerable<Citation> Citations { get; private set; }
 
-
-        public MedlineFile(CitationRepository repo)
-        {
-            if (repo == null)
-            {
-                throw new ArgumentNullException("repo");
-            }
-
-            Name = "default";
-            Citations = repo.Citations;
-            NumberOfCitations = Citations.Count();
-        }
 
 
         /// <summary>

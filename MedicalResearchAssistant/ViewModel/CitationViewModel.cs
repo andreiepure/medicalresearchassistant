@@ -1,4 +1,4 @@
-﻿using MedicalResearchAssistant.Model;
+﻿using MedicalResearchAssistant.FileParser.Medline;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,8 +13,29 @@ namespace MedicalResearchAssistant.ViewModel
     {
         private Citation citation;
 
+        public string Id
+        {
+            get
+            {
+                return citation.Pmid;
+            }
+        }
+
+        public string Title
+        {
+            get
+            {
+                return citation.Title;
+            }
+        }
+
         public CitationViewModel(Citation citation)
         {
+            if (citation == null)
+            {
+                throw new ArgumentNullException("citation");
+            }
+
             this.citation = citation;
         }
 

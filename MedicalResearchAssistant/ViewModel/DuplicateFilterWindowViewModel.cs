@@ -89,6 +89,35 @@ namespace MedicalResearchAssistant.ViewModel
             }
         }
 
+        private int totalCitationNumber;
+        public int TotalCitationNumber
+        {
+            get
+            {
+                return totalCitationNumber;
+            }
+            set
+            {
+                totalCitationNumber = value;
+                OnPropertyChanged("TotalCitationNumber");
+            }
+        }
+
+        private Dictionary<string, CitationViewModel> UniqueCitations;
+        private int uniqueCitationNumber;
+        public int UniqueCitationNumber
+        {
+            get
+            {
+                return uniqueCitationNumber;
+            }
+            set
+            {
+                uniqueCitationNumber = value;
+                OnPropertyChanged("UniqueCitationNumber");
+            }
+        }
+
         public DuplicateFilterWindowViewModel()
         {
             SelectedFiles = new ObservableCollection<MedlineFileViewModel>();
@@ -97,6 +126,9 @@ namespace MedicalResearchAssistant.ViewModel
             AddFileToListCommand = new RelayCommand(new Action<object>(AddFileToList));
             ChooseFolderLabel = "Add a file";
             ChosenFolder = "Please enter text";
+            TotalCitationNumber = 0;
+            UniqueCitationNumber = 0;
+            UniqueCitations = new Dictionary<string, CitationViewModel>();
         }
 
         public void FilterDuplicates(object message)
@@ -124,6 +156,16 @@ namespace MedicalResearchAssistant.ViewModel
                 {
                     MedlineFileViewModel fileViewModel = new MedlineFileViewModel(dialog.FileName);
                     SelectedFiles.Add(fileViewModel);
+                    TotalCitationNumber += fileViewModel.NumberOfCitations;
+                    foreach (CitationViewModel citation in fileViewModel.Citations)
+                    {
+                        if (!UniqueCitations.ContainsKey(citation.Id))
+                        {
+                            UniqueCitations[citation.Id] = citation;
+                        }
+                    }
+
+                    UniqueCitationNumber = UniqueCitations.Count;
                 }
             }
         }

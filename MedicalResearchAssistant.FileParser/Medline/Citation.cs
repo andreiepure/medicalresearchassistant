@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MedicalResearchAssistant.Model
+namespace MedicalResearchAssistant.FileParser.Medline
 {
     public class Citation
     {
@@ -24,12 +24,18 @@ namespace MedicalResearchAssistant.Model
         public string Abstract { get; private set; }
 
         /// <summary>
+        /// Whole raw content of Medline citation
+        /// </summary>
+        public string Content { get; private set; }
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="id">The medline identifier of the article</param>
         /// <param name="title">The title of the article</param>
         /// <param name="articleAbstract">The abstract of the article</param>
-        public Citation(string id, string title, string articleAbstract)
+        /// <param name="content">The raw content of the citation</param>
+        public Citation(string id, string title, string articleAbstract, string content)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -46,9 +52,15 @@ namespace MedicalResearchAssistant.Model
                 throw new ArgumentNullException("articleAbstract");
             }
 
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                throw new ArgumentNullException("content");
+            }
+
             Pmid = id;
             Title = title;
             Abstract = articleAbstract;
+            Content = content;
         }
     }
 }

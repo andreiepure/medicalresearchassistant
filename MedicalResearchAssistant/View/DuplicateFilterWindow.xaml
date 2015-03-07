@@ -3,14 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:view="clr-namespace:MedicalResearchAssistant.View"
         xmlns:viewmodel="clr-namespace:MedicalResearchAssistant.ViewModel"
-        Title="Duplicate Filter" Height="400" Width="800">
+        Title="Duplicate Filter" Height="420" Width="800">
     <!-- Binding to ViewModel data context -->
     <Window.DataContext>
         <viewmodel:DuplicateFilterWindowViewModel/>
     </Window.DataContext>
     <Grid>
-        <Grid HorizontalAlignment="Left" Height="400" Margin="37,10,0,0" VerticalAlignment="Top" Width="800">
-            <StackPanel HorizontalAlignment="Left" Height="290" VerticalAlignment="Top" Width="400">
+        <Grid HorizontalAlignment="Left" Height="350" Margin="37,10,0,0" VerticalAlignment="Top" Width="800">
+            <StackPanel HorizontalAlignment="Left" Height="390" VerticalAlignment="Top" Width="400">
                 <Label Content="Add NBIB or TXT files with Medline citations"/>
                 <Button Content="Add a file"
                         Command="{Binding AddFileToListCommand}"/>
@@ -28,6 +28,14 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Total number"></Label>
+                    <Label Content="{Binding TotalCitationNumber}"></Label>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Unique number"></Label>
+                    <Label Content="{Binding UniqueCitationNumber}"></Label>
+                </StackPanel>
             </StackPanel>
             <StackPanel HorizontalAlignment="Left" Height="300" Margin="450,27,0,0" VerticalAlignment="Top" Width="300">
                 <!-- 
