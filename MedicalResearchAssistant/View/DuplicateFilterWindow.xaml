@@ -85,10 +85,10 @@
                              VerticalAlignment="Top"
                              Width="200"/>
                 </Grid>
-                <Button Content="Filter duplicates!"
+                <Button Content="Save to files!"
                         Margin="0,20,0,0" 
                         Height="40"
-                        Command="{Binding FilterDuplicatesCommand}"/>
+                        Command="{Binding SaveToFilesCommand}"/>
             </StackPanel>
         </Grid>
     </Grid>

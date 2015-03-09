@@ -11,6 +11,7 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Globalization;
 
 namespace MedicalResearchAssistant.ViewModel
 {
@@ -20,7 +21,7 @@ namespace MedicalResearchAssistant.ViewModel
 
         public ObservableCollection<MedlineFileViewModel> SelectedFiles { get; private set; }
 
-        public ICommand FilterDuplicatesCommand { get; private set; }
+        public ICommand SaveToFilesCommand { get; private set; }
 
         public ICommand ChooseOutputFolderCommand { get; private set; }
         public ICommand AddFileToListCommand { get; private set; }
@@ -57,12 +58,12 @@ namespace MedicalResearchAssistant.ViewModel
             set
             {
                chosenFolder = value;
-               OnPropertyChanged("EnteredText");
+               OnPropertyChanged("ChosenFolder");
             }
         }
 
-        private long citationsPerFile;
-        public long CitationsPerFile
+        private int citationsPerFile;
+        public int CitationsPerFile
         {
             get
             {
@@ -121,21 +122,65 @@ namespace MedicalResearchAssistant.ViewModel
         public DuplicateFilterWindowViewModel()
         {
             SelectedFiles = new ObservableCollection<MedlineFileViewModel>();
-            FilterDuplicatesCommand = new RelayCommand(new Action<object>(FilterDuplicates));
+            SaveToFilesCommand = new RelayCommand(new Action<object>(SaveToFiles));
             ChooseOutputFolderCommand = new RelayCommand(new Action<object>(ChooseOutputFolder));
             AddFileToListCommand = new RelayCommand(new Action<object>(AddFileToList));
             ChooseFolderLabel = "Add a file";
-            ChosenFolder = "Please enter text";
+            ChosenFolder = string.Empty;
             TotalCitationNumber = 0;
             UniqueCitationNumber = 0;
             UniqueCitations = new Dictionary<string, CitationViewModel>();
         }
 
-        public void FilterDuplicates(object message)
+        public void SaveToFiles(object message)
         {
-            Debug.WriteLine(message.ToString());
-            ChooseFolderLabel = "First choose the folder";
-            Debug.WriteLine(ChosenFolder);
+            Debug.WriteLine(OutName + " " + CitationsPerFile + " " + ChosenFolder);
+            int numberOfFiles = (int)(UniqueCitationNumber / CitationsPerFile) + 1;
+
+            if (Directory.Exists(ChosenFolder))
+            {
+                // TODO check has right to open and write file http://stackoverflow.com/questions/130617/how-do-you-check-for-permissions-to-write-to-a-directory-or-file
+
+                List<string> uniqueIds = UniqueCitations.Keys.ToList();
+
+                for (int fileNo = 0; fileNo < numberOfFiles; fileNo++)
+                {
+                    // TODO this should be in own method
+                    string newFilePath = Path.Combine(ChosenFolder,
+                        OutName,
+                        fileNo.ToString(CultureInfo.InvariantCulture),
+                        ".nbib.");
+                    try
+                    {
+                        using (FileStream newStream = new FileStream(newFilePath, FileMode.Create))
+                        using (TextWriter writer = new StreamWriter(newStream))
+                        {
+                            int startIndex = fileNo * CitationsPerFile;
+                            int endIndex = (fileNo + 1) * CitationsPerFile;
+                            if (endIndex > uniqueIds.Count)
+                            {
+                                endIndex = uniqueIds.Count;
+                            }
+
+                            for (int citationNo = startIndex; citationNo < endIndex; citationNo++)
+                            {
+                                string citationId = uniqueIds[citationNo];
+                                string fullText = UniqueCitations[citationId].FullText;
+                                writer.WriteLine(fullText);
+                                writer.WriteLine(writer.NewLine);
+                            }
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        // TODO better exception hadnling
+                    }
+                }
+            }
+            else
+            {
+                Debug.WriteLine(ChosenFolder + " does not exist");
+            }
         }
 
         public void AddFileToList(object message)

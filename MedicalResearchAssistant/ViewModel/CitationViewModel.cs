@@ -29,6 +29,14 @@ namespace MedicalResearchAssistant.ViewModel
             }
         }
 
+        public string FullText
+        {
+            get
+            {
+                return citation.Content;
+            }
+        }
+
         public CitationViewModel(Citation citation)
         {
             if (citation == null)
