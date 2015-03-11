@@ -134,9 +134,29 @@ namespace MedicalResearchAssistant.ViewModel
 
         public void SaveToFiles(object message)
         {
-            if (CitationsPerFile < 1)
+            if (SelectedFiles.Count < 2)
             {
                 // handle
+                ShowError("You might want to select at least two files...");
+                return;
+            }
+
+            if (CitationsPerFile < 1)
+            {
+                ShowError("Citations per file should be positive (> 0)");
+                return;
+            }
+
+
+            if (string.IsNullOrWhiteSpace(ChosenFolder))
+            {
+                ShowError("Please select an output folder");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(OutName))
+            {
+                ShowError("Please enter an output file name");
                 return;
             }
 
@@ -149,6 +169,25 @@ namespace MedicalResearchAssistant.ViewModel
             else
             {
                 numberOfFiles = (int)(UniqueCitationNumber / CitationsPerFile) + 1;
+            }
+
+            if (numberOfFiles >= 20)
+            {
+                MessageBoxResult result = System.Windows.MessageBox.Show("This is going to create " + numberOfFiles + " files, are you sure?",
+                    "Confirmation",
+                    MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.No)
+                {
+                    return;
+                }
+                else
+                {
+                    if (numberOfFiles > 100)
+                    {
+                        ShowError("" + numberOfFiles + " is greater than 100, you'll ruin your computer, I won't let you do that");
+                        return;
+                    }
+                }
             }
 
             if (Directory.Exists(ChosenFolder))
@@ -187,8 +226,8 @@ namespace MedicalResearchAssistant.ViewModel
                     catch (Exception ex)
                     {
                         // TODO better exception hadnling
-                        Window errorWindow = CreateWindow(ErrorTitle, UnknowErrorMessage);
-                        errorWindow.ShowDialog();
+                        ShowError(UnknowErrorMessage);
+                        return;
                     }
                 }
             }
@@ -197,19 +236,7 @@ namespace MedicalResearchAssistant.ViewModel
                 Debug.WriteLine(ChosenFolder + " does not exist");
             }
 
-            Window window = new Window()
-            {
-                Height = 100,
-                Width = 400,
-                Title = "Success",
-                ShowInTaskbar = false,               // don't show the dialog on the taskbar
-                Topmost = true,                      // ensure we're Always On Top
-                ResizeMode = ResizeMode.NoResize,    // remove excess caption bar buttons
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                Content = "Success - files have been created"
-            };
-
-            window.ShowDialog();
+            ShowSuccess("Success - files have been created");
         }
 
         public async void AddFileToList(object message)
@@ -228,36 +255,43 @@ namespace MedicalResearchAssistant.ViewModel
             {
                 if (!string.IsNullOrWhiteSpace(dialog.FileName))
                 {
-                    try
+                    if (!SelectedFiles.Where(file => file.FullPath.Equals(dialog.FileName)).Any())
                     {
                         IListableFileViewModel loadingMessage = new LoadingMessage { FullPath = " - LOADING - PLEASE WAIT -", NumberOfCitations = 0 };
-
-                        var slowTask = Task<MedlineFileViewModel>.Factory.StartNew(() => CreateMedlineFileViewModel(dialog.FileName));
-
-                        SelectedFiles.Add(loadingMessage);
-
-                        await slowTask;
-
-                        MedlineFileViewModel fileViewModel = slowTask.Result;
-
-                        SelectedFiles.Remove(loadingMessage);
-
-                        SelectedFiles.Add(fileViewModel);
-                        TotalCitationNumber += fileViewModel.NumberOfCitations;
-                        foreach (CitationViewModel citation in fileViewModel.Citations)
+                        try
                         {
-                            if (!UniqueCitations.ContainsKey(citation.Id))
-                            {
-                                UniqueCitations[citation.Id] = citation;
-                            }
-                        }
 
-                        UniqueCitationNumber = UniqueCitations.Count;
+                            var slowTask = Task<MedlineFileViewModel>.Factory.StartNew(() => CreateMedlineFileViewModel(dialog.FileName));
+
+                            SelectedFiles.Add(loadingMessage);
+
+                            await slowTask;
+
+                            MedlineFileViewModel fileViewModel = slowTask.Result;
+
+                            SelectedFiles.Remove(loadingMessage);
+
+                            SelectedFiles.Add(fileViewModel);
+                            TotalCitationNumber += fileViewModel.NumberOfCitations;
+                            foreach (CitationViewModel citation in fileViewModel.Citations)
+                            {
+                                if (!UniqueCitations.ContainsKey(citation.Id))
+                                {
+                                    UniqueCitations[citation.Id] = citation;
+                                }
+                            }
+
+                            UniqueCitationNumber = UniqueCitations.Count;
+                        }
+                        catch (Exception ex)
+                        {
+                            ShowError(WrongFileFormatMessage);
+                            SelectedFiles.Remove(loadingMessage);
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Window errorWindow = CreateWindow(ErrorTitle, WrongFileFormatMessage);
-                        errorWindow.ShowDialog();
+                        ShowError("Already added that file...");
                     }
                 }
             }
@@ -288,19 +322,21 @@ namespace MedicalResearchAssistant.ViewModel
         private const string UnknowErrorMessage = "Error occurred - unkown error";
         private const string FilesSavedMessage = "Files have been saved";
 
-        private Window CreateWindow(string title, string message)
+
+        private void ShowError(string message)
         {
-            return new Window()
-            {
-                Height = 100,
-                Width = 400,
-                Title = title,
-                ShowInTaskbar = false,               // don't show the dialog on the taskbar
-                Topmost = true,                      // ensure we're Always On Top
-                ResizeMode = ResizeMode.NoResize,    // remove excess caption bar buttons
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                Content = message
-            };
+            System.Windows.MessageBox.Show(
+    message,
+    ErrorTitle,
+    MessageBoxButton.OK);
+        }
+
+        private void ShowSuccess(string message)
+        {
+            System.Windows.MessageBox.Show(
+    message,
+    SuccessTitle,
+    MessageBoxButton.OK);
         }
 
         private class LoadingMessage : IListableFileViewModel
