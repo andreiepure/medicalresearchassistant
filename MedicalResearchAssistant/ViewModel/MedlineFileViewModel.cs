@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MedicalResearchAssistant.ViewModel
 {
-    public class MedlineFileViewModel : ViewModelBase
+    public class MedlineFileViewModel : ViewModelBase, IListableFileViewModel
     {
         public ObservableCollection<CitationViewModel> Citations { get; private set; }
 

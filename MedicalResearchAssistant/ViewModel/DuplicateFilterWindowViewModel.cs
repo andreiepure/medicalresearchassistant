@@ -19,7 +19,7 @@ namespace MedicalResearchAssistant.ViewModel
     {
         //public MedlineFileViewModel SelectedFiles { get; set; }
 
-        public ObservableCollection<MedlineFileViewModel> SelectedFiles { get; private set; }
+        public ObservableCollection<IListableFileViewModel> SelectedFiles { get; private set; }
 
         public ICommand SaveToFilesCommand { get; private set; }
 
@@ -43,8 +43,8 @@ namespace MedicalResearchAssistant.ViewModel
 
             private set
             {
-               chooseFolderLabel = value;
-               OnPropertyChanged("ChooseFolderLabel");
+                chooseFolderLabel = value;
+                OnPropertyChanged("ChooseFolderLabel");
             }
         }
 
@@ -57,8 +57,8 @@ namespace MedicalResearchAssistant.ViewModel
             }
             set
             {
-               chosenFolder = value;
-               OnPropertyChanged("ChosenFolder");
+                chosenFolder = value;
+                OnPropertyChanged("ChosenFolder");
             }
         }
 
@@ -121,7 +121,7 @@ namespace MedicalResearchAssistant.ViewModel
 
         public DuplicateFilterWindowViewModel()
         {
-            SelectedFiles = new ObservableCollection<MedlineFileViewModel>();
+            SelectedFiles = new ObservableCollection<IListableFileViewModel>();
             SaveToFilesCommand = new RelayCommand(new Action<object>(SaveToFiles));
             ChooseOutputFolderCommand = new RelayCommand(new Action<object>(ChooseOutputFolder));
             AddFileToListCommand = new RelayCommand(new Action<object>(AddFileToList));
@@ -184,9 +184,11 @@ namespace MedicalResearchAssistant.ViewModel
 
 
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         // TODO better exception hadnling
+                        Window errorWindow = CreateWindow(ErrorTitle, UnknowErrorMessage);
+                        errorWindow.ShowDialog();
                     }
                 }
             }
@@ -194,9 +196,23 @@ namespace MedicalResearchAssistant.ViewModel
             {
                 Debug.WriteLine(ChosenFolder + " does not exist");
             }
+
+            Window window = new Window()
+            {
+                Height = 100,
+                Width = 400,
+                Title = "Success",
+                ShowInTaskbar = false,               // don't show the dialog on the taskbar
+                Topmost = true,                      // ensure we're Always On Top
+                ResizeMode = ResizeMode.NoResize,    // remove excess caption bar buttons
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                Content = "Success - files have been created"
+            };
+
+            window.ShowDialog();
         }
 
-        public void AddFileToList(object message)
+        public async void AddFileToList(object message)
         {
             // Create OpenFileDialog 
             Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog();
@@ -212,20 +228,44 @@ namespace MedicalResearchAssistant.ViewModel
             {
                 if (!string.IsNullOrWhiteSpace(dialog.FileName))
                 {
-                    MedlineFileViewModel fileViewModel = new MedlineFileViewModel(dialog.FileName);
-                    SelectedFiles.Add(fileViewModel);
-                    TotalCitationNumber += fileViewModel.NumberOfCitations;
-                    foreach (CitationViewModel citation in fileViewModel.Citations)
+                    try
                     {
-                        if (!UniqueCitations.ContainsKey(citation.Id))
-                        {
-                            UniqueCitations[citation.Id] = citation;
-                        }
-                    }
+                        IListableFileViewModel loadingMessage = new LoadingMessage { FullPath = " - LOADING - PLEASE WAIT -", NumberOfCitations = 0 };
 
-                    UniqueCitationNumber = UniqueCitations.Count;
+                        var slowTask = Task<MedlineFileViewModel>.Factory.StartNew(() => CreateMedlineFileViewModel(dialog.FileName));
+
+                        SelectedFiles.Add(loadingMessage);
+
+                        await slowTask;
+
+                        MedlineFileViewModel fileViewModel = slowTask.Result;
+
+                        SelectedFiles.Remove(loadingMessage);
+
+                        SelectedFiles.Add(fileViewModel);
+                        TotalCitationNumber += fileViewModel.NumberOfCitations;
+                        foreach (CitationViewModel citation in fileViewModel.Citations)
+                        {
+                            if (!UniqueCitations.ContainsKey(citation.Id))
+                            {
+                                UniqueCitations[citation.Id] = citation;
+                            }
+                        }
+
+                        UniqueCitationNumber = UniqueCitations.Count;
+                    }
+                    catch (Exception ex)
+                    {
+                        Window errorWindow = CreateWindow(ErrorTitle, WrongFileFormatMessage);
+                        errorWindow.ShowDialog();
+                    }
                 }
             }
+        }
+
+        private MedlineFileViewModel CreateMedlineFileViewModel(string fileName)
+        {
+            return new MedlineFileViewModel(fileName);
         }
 
         public void ChooseOutputFolder(object message)
@@ -236,12 +276,39 @@ namespace MedicalResearchAssistant.ViewModel
             if (result == DialogResult.OK)
             {
                 if (!string.IsNullOrWhiteSpace(dialog.SelectedPath))
-                { 
+                {
                     ChosenFolder = dialog.SelectedPath;
                 }
             }
         }
 
+        private const string SuccessTitle = "Success";
+        private const string ErrorTitle = "Error";
+        private const string WrongFileFormatMessage = "Error occurred - are you sure you are adding a PUBMED/MEDLINE file?";
+        private const string UnknowErrorMessage = "Error occurred - unkown error";
+        private const string FilesSavedMessage = "Files have been saved";
+
+        private Window CreateWindow(string title, string message)
+        {
+            return new Window()
+            {
+                Height = 100,
+                Width = 400,
+                Title = title,
+                ShowInTaskbar = false,               // don't show the dialog on the taskbar
+                Topmost = true,                      // ensure we're Always On Top
+                ResizeMode = ResizeMode.NoResize,    // remove excess caption bar buttons
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                Content = message
+            };
+        }
+
+        private class LoadingMessage : IListableFileViewModel
+        {
+            public string FullPath { get; set; }
+
+            public int NumberOfCitations { get; set; }
+        }
 
         public override void Dispose()
         {
