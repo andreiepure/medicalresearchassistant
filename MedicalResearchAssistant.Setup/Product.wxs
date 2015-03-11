@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="MedicalResearchAssistant.Setup" Language="1033" Version="1.0.0.0" Manufacturer="Andrei Epure" UpgradeCode="b126942f-34fc-41a3-9c48-fd080b64d5a8">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of MedicalResearchAssistant is already installed." />
+		<MediaTemplate />
+
+		<Feature Id="ProductFeature" Title="MedicalResearchAssistant.Setup" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+		</Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="MedicalResearchAssistant.Setup" />
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+			<!-- TODO: Remove the comments around this Component element and the ComponentRef below in order to add resources to this installer. -->
+			<Component Id="Exe">
+        <File Source="D:\invata_programare\workspace\MedicalResearchAssistant\MedicalResearchAssistant\bin\Debug\MedicalResearchAssistant.exe" />
+			</Component>
+			<Component Id="Config">
+        <File Source="D:\invata_programare\workspace\MedicalResearchAssistant\MedicalResearchAssistant\bin\Debug\MedicalResearchAssistant.exe.config" />
+			</Component>
+			<Component Id="vshost">
+        <File Source="D:\invata_programare\workspace\MedicalResearchAssistant\MedicalResearchAssistant\bin\Debug\MedicalResearchAssistant.FileParser.dll" />
+			</Component>
+			<Component Id="parser">
+        <File Source="D:\invata_programare\workspace\MedicalResearchAssistant\MedicalResearchAssistant\bin\Debug\MedicalResearchAssistant.vshost.exe" />
+			</Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>

@@ -16,7 +16,7 @@ namespace MedicalResearchAssistant.ViewModel
 
         private MedlineFile medlineFile;
 
-        public string Folder { get; private set; }
+        public string FullPath { get; private set; }
         public string Name { get; private set; }
         public int NumberOfCitations
         {
@@ -37,8 +37,8 @@ namespace MedicalResearchAssistant.ViewModel
             {
                 throw new ArgumentNullException("name");
             }
-            Folder = Path.GetFileName(filePath);
-            Name = Path.GetPathRoot(filePath);
+            Name = Path.GetFileName(filePath);
+            FullPath = Path.GetFullPath(filePath);
             string absolutePath = Path.GetFullPath(filePath);
             try
             {

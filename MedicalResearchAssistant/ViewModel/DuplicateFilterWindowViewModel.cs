@@ -134,8 +134,22 @@ namespace MedicalResearchAssistant.ViewModel
 
         public void SaveToFiles(object message)
         {
+            if (CitationsPerFile < 1)
+            {
+                // handle
+                return;
+            }
+
             Debug.WriteLine(OutName + " " + CitationsPerFile + " " + ChosenFolder);
-            int numberOfFiles = (int)(UniqueCitationNumber / CitationsPerFile) + 1;
+            int numberOfFiles;
+            if (CitationsPerFile >= UniqueCitationNumber)
+            {
+                numberOfFiles = 1;
+            }
+            else
+            {
+                numberOfFiles = (int)(UniqueCitationNumber / CitationsPerFile) + 1;
+            }
 
             if (Directory.Exists(ChosenFolder))
             {
@@ -147,9 +161,7 @@ namespace MedicalResearchAssistant.ViewModel
                 {
                     // TODO this should be in own method
                     string newFilePath = Path.Combine(ChosenFolder,
-                        OutName,
-                        fileNo.ToString(CultureInfo.InvariantCulture),
-                        ".nbib.");
+                        string.Concat(OutName, fileNo.ToString(CultureInfo.InvariantCulture), ".nbib"));
                     try
                     {
                         using (FileStream newStream = new FileStream(newFilePath, FileMode.Create))
@@ -167,9 +179,10 @@ namespace MedicalResearchAssistant.ViewModel
                                 string citationId = uniqueIds[citationNo];
                                 string fullText = UniqueCitations[citationId].FullText;
                                 writer.WriteLine(fullText);
-                                writer.WriteLine(writer.NewLine);
                             }
                         }
+
+
                     }
                     catch(Exception ex)
                     {
