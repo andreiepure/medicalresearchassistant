@@ -23,8 +23,10 @@ namespace MedicalResearchAssistant.FileParser.Medline
         public int NumberOfCitations { get; private set; }
 
 
+        /// <summary>
+        /// The enumaration of citations in this medline file
+        /// </summary>
         public IEnumerable<Citation> Citations { get; private set; }
-
 
 
         /// <summary>
