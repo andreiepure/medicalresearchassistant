@@ -168,7 +168,6 @@ namespace MedicalResearchAssistant.FileParser.Medline
                                     currentTitle,
                                     currentAbstract,
                                     contentBuilder.ToString());
-                            return true;
                         }
                         else
                         {
