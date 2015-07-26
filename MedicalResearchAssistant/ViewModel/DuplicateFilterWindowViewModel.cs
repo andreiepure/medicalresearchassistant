@@ -97,7 +97,7 @@ namespace MedicalResearchAssistant.ViewModel
             {
                 return totalCitationNumber;
             }
-            set
+            private set
             {
                 totalCitationNumber = value;
                 OnPropertyChanged("TotalCitationNumber");
@@ -105,6 +105,7 @@ namespace MedicalResearchAssistant.ViewModel
         }
 
         private Dictionary<string, CitationViewModel> UniqueCitations;
+        private Dictionary<string, List<MedlineFileViewModel>> CitationsContainers;
         private int uniqueCitationNumber;
         public int UniqueCitationNumber
         {
@@ -112,10 +113,24 @@ namespace MedicalResearchAssistant.ViewModel
             {
                 return uniqueCitationNumber;
             }
-            set
+            private set
             {
                 uniqueCitationNumber = value;
                 OnPropertyChanged("UniqueCitationNumber");
+            }
+        }
+
+        private int duplicateCitationNumber;
+        public int DuplicateCitationNumber
+        {
+            get
+            {
+                return duplicateCitationNumber;
+            }
+            private set
+            {
+                duplicateCitationNumber = value;
+                OnPropertyChanged("DuplicateCitationNumber");
             }
         }
 
@@ -130,6 +145,7 @@ namespace MedicalResearchAssistant.ViewModel
             TotalCitationNumber = 0;
             UniqueCitationNumber = 0;
             UniqueCitations = new Dictionary<string, CitationViewModel>();
+            CitationsContainers = new Dictionary<string, List<MedlineFileViewModel>>();
         }
 
         public void SaveToFiles(object message)
@@ -251,6 +267,7 @@ namespace MedicalResearchAssistant.ViewModel
             // Display OpenFileDialog by calling ShowDialog method 
             Nullable<bool> result = dialog.ShowDialog();
 
+            // TODO!!! the duplicate filtering should be SEPARATE from the UI logic!!!
             if (result == true)
             {
                 if (!string.IsNullOrWhiteSpace(dialog.FileName))
@@ -278,10 +295,18 @@ namespace MedicalResearchAssistant.ViewModel
                                 if (!UniqueCitations.ContainsKey(citation.Id))
                                 {
                                     UniqueCitations[citation.Id] = citation;
+                                    List<MedlineFileViewModel> containers = new List<MedlineFileViewModel>() { fileViewModel };
+                                    CitationsContainers[citation.Id] = containers;
+                                }
+                                else
+                                {
+                                    // add the fileViewModel to the existing citation
+                                    CitationsContainers[citation.Id].Add(fileViewModel);
                                 }
                             }
 
                             UniqueCitationNumber = UniqueCitations.Count;
+                            DuplicateCitationNumber = CitationsContainers.Count(pair => pair.Value.Count > 1);
                         }
                         catch (Exception ex)
                         {

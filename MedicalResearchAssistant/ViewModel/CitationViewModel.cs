@@ -37,6 +37,11 @@ namespace MedicalResearchAssistant.ViewModel
             }
         }
 
+        /// <summary>
+        /// Constructor - called when the first instance of the citation is found
+        /// </summary>
+        /// <param name="citation">The citation backing the viewmodel</param>
+        /// <param name="medlineFile">The file containing the citation</param>
         public CitationViewModel(Citation citation)
         {
             if (citation == null)

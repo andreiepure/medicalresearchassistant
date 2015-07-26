@@ -9,7 +9,7 @@
         <viewmodel:DuplicateFilterWindowViewModel/>
     </Window.DataContext>
     <Grid>
-        <Grid HorizontalAlignment="Left" Height="350" Margin="37,10,0,0" VerticalAlignment="Top" Width="800">
+        <Grid HorizontalAlignment="Left" Height="400" Margin="37,10,0,0" VerticalAlignment="Top" Width="800">
             <StackPanel HorizontalAlignment="Left" Height="390" VerticalAlignment="Top" Width="400">
                 <Label Content="Add TXT or NBIB (choose filter!) files with Medline citations"/>
                 <Button Content="Add a file"
@@ -34,6 +34,10 @@
                 <StackPanel Orientation="Horizontal">
                     <Label Content="Unique number"></Label>
                     <Label Content="{Binding UniqueCitationNumber}"></Label>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Duplicate number"></Label>
+                    <Label Content="{Binding DuplicateCitationNumber}"></Label>
                 </StackPanel>
             </StackPanel>
             <StackPanel HorizontalAlignment="Left" Height="346" Margin="450,20,0,-16" VerticalAlignment="Top" Width="310">

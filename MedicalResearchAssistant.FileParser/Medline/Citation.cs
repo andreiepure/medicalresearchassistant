@@ -29,11 +29,6 @@ namespace MedicalResearchAssistant.FileParser.Medline
         public string Content { get; private set; }
 
         /// <summary>
-        /// The files that contain this citation
-        /// </summary>
-        public HashSet<MedlineFile> ParentContainers { get; private set; }
-
-        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="id">The medline identifier of the article</param>
