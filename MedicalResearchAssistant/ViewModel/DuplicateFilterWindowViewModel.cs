@@ -12,6 +12,7 @@ using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Globalization;
+using System.Web.UI;
 
 namespace MedicalResearchAssistant.ViewModel
 {
@@ -236,8 +237,6 @@ namespace MedicalResearchAssistant.ViewModel
                                 writer.WriteLine(fullText);
                             }
                         }
-
-
                     }
                     catch (Exception ex)
                     {
@@ -246,6 +245,43 @@ namespace MedicalResearchAssistant.ViewModel
                         return;
                     }
                 }
+
+                string htmlReport = Path.Combine(ChosenFolder, string.Concat(OutName, "_report.html"));
+                using (FileStream fileStream = new FileStream(htmlReport, FileMode.Create))
+                using (TextWriter textWriter = new StreamWriter(fileStream))
+                using(HtmlTextWriter htmlTextWriter = new HtmlTextWriter(textWriter))
+                {
+                    htmlTextWriter.RenderBeginTag(HtmlTextWriterTag.H1);
+                    htmlTextWriter.Write("Duplicates only - " + DateTime.Now.ToString());
+                    htmlTextWriter.RenderEndTag(); // end H1
+
+                    htmlTextWriter.AddAttribute(HtmlTextWriterAttribute.Style, "padding: 15px;border: 1px solid black;");
+                    htmlTextWriter.RenderBeginTag(HtmlTextWriterTag.Table); // Begin table
+
+                    htmlTextWriter.AddAttribute(HtmlTextWriterAttribute.Style, "padding: 15px;border: 1px solid black;");
+                    htmlTextWriter.RenderBeginTag(HtmlTextWriterTag.Tr); // Begin header row
+                    AddTableElement(htmlTextWriter, HtmlTextWriterTag.Th, "Citation id");
+                    AddTableElement(htmlTextWriter, HtmlTextWriterTag.Th, "Citation title");
+                    AddTableElement(htmlTextWriter, HtmlTextWriterTag.Th, "Files it appears in");
+                    htmlTextWriter.RenderEndTag(); // end header row
+
+                    foreach (string citation in CitationsContainers.Keys)
+                    {
+                        CitationViewModel citationViewModel = UniqueCitations[citation];
+                        IEnumerable<string> files = CitationsContainers[citation].Select(fileViewModel => fileViewModel.FullPath);
+                        if (files.Count() > 1)
+                        {
+                            htmlTextWriter.AddAttribute(HtmlTextWriterAttribute.Style, "padding: 15px;border: 1px solid black;");
+                            htmlTextWriter.RenderBeginTag(HtmlTextWriterTag.Tr); // Begin header row
+                            AddTableElement(htmlTextWriter, HtmlTextWriterTag.Td, citation); // id
+                            AddTableElement(htmlTextWriter, HtmlTextWriterTag.Td, citationViewModel.Title); // name
+                            AddTableElement(htmlTextWriter, HtmlTextWriterTag.Td, string.Join("</br>", files));
+                            htmlTextWriter.RenderEndTag(); // end header row
+                        }
+                    }
+
+                    htmlTextWriter.RenderEndTag(); // end table
+                }
             }
             else
             {
@@ -253,6 +289,14 @@ namespace MedicalResearchAssistant.ViewModel
             }
 
             ShowSuccess("Success - files have been created");
+        }
+
+        public void AddTableElement(HtmlTextWriter htmlTextWriter, HtmlTextWriterTag tag, string content)
+        {
+                    htmlTextWriter.AddAttribute(HtmlTextWriterAttribute.Style, "padding: 15px;border: 1px solid black;");
+                    htmlTextWriter.RenderBeginTag(tag);
+                    htmlTextWriter.Write(content);
+                    htmlTextWriter.RenderEndTag();
         }
 
         public async void AddFileToList(object message)
@@ -306,9 +350,13 @@ namespace MedicalResearchAssistant.ViewModel
                             }
 
                             UniqueCitationNumber = UniqueCitations.Count;
-                            DuplicateCitationNumber = CitationsContainers.Count(pair => pair.Value.Count > 1);
+                            // say article A appears in file1, file2 and file3
+                            // then it should be counted 2 times as duplicate
+                            DuplicateCitationNumber = CitationsContainers
+                                .Where(pair => pair.Value.Count > 1)
+                                .Sum(pair => (pair.Value.Count -1));
                         }
-                        catch (Exception ex)
+                        catch (Exception ex) 
                         {
                             ShowError(WrongFileFormatMessage);
                             SelectedFiles.Remove(loadingMessage);
